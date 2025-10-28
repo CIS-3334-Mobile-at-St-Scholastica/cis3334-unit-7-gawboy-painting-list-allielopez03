@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'load_painting_info.dart';
 import 'painting_info.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -9,13 +10,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Gawboy Painting'),
@@ -26,19 +25,21 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 // ==========================================================================
+
 class _MyHomePageState extends State<MyHomePage> {
-
-  List<PaintingInfo> gawboyPaintings = [];                // the list of paintings
+  List<PaintingInfo> gawboyPaintings = [];
   LoadPaintingInfo paintLoader = LoadPaintingInfo();
+  final PageController ctrl = PageController();
 
-  // Load the painting information when the app starts
   @override
   void initState() {
+    super.initState();
     gawboyPaintings = paintLoader.InitInCode();
   }
 
@@ -56,9 +57,47 @@ class _MyHomePageState extends State<MyHomePage> {
               PointerDeviceKind.mouse,
             },
           ),
-          child: const Text( "Display painting and its name and title here"),
+          child: PageView.builder(
+            controller: ctrl,
+            itemCount: gawboyPaintings.length,
+            itemBuilder: (BuildContext context, int position) {
+              return buildPaintingPage(position);
+            },
+          ),
         ),
       ),
     );
   }
+
+  Widget buildPaintingPage(int position) {
+    final painting = gawboyPaintings[position];
+
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            painting.name,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16),
+          Image.asset(
+            'assets/images/' + painting.imageFile,
+            height: 300,
+            fit: BoxFit.contain,
+          ),
+          SizedBox(height: 16),
+          Text(
+            painting.gawboyDescription,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
